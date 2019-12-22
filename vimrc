@@ -1,5 +1,4 @@
 let mapleader=" "
-colorscheme snazzy
 syntax on
 syntax enable
 set mouse=a
@@ -131,6 +130,8 @@ Plug 'kana/vim-textobj-user'
 Plug 'fadein/vim-FIGlet'
 
 call plug#end()
+
+colorscheme snazzy
 
 let g:lightline = {
 \ 'colorscheme': 'snazzy',
