@@ -24,6 +24,7 @@ set cursorline
 set wrap
 set showcmd
 set wildmenu
+set clipboard=unnamedplus
 
 " 搜索设置
 
@@ -32,7 +33,6 @@ exec "nohlsearch"
 set incsearch
 set ignorecase
 set smartcase
-
 noremap = nzz
 noremap - Nzz
 noremap <LEADER><CR> :nohlsearch<CR>
@@ -69,11 +69,16 @@ map sc <C-w>t<C-w>K
 call plug#begin('~/.vim/plugged')
 
 Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'connorholyday/vim-snazzy'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'ayu-theme/ayu-vim'
+Plug 'bling/vim-bufferline'
 
 " File navigation
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'ctrlpvim/ctrlp.vim', { 'on': 'CtrlP' }
 
 " Taglist
 Plug 'majutsushi/tagbar', { 'on': 'TagbarOpenAutoClose' }
@@ -82,14 +87,21 @@ Plug 'majutsushi/tagbar', { 'on': 'TagbarOpenAutoClose' }
 Plug 'dense-analysis/ale'
 
 " Auto Complete
-Plug 'Valloric/YouCompleteMe'
+" Plug 'Valloric/YouCompleteMe'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Plug 'davidhalter/jedi-vim'
 
 " Undo Tree
 Plug 'mbbill/undotree/'
 
+" Snippits
+" Plug 'SirVer/ultisnips'  , { 'for': ['vim-plug', 'python'] }  
+" Plug 'honza/vim-snippets', { 'for': ['vim-plug', 'python'] }
+
 " Other visual enhancement
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'itchyny/vim-cursorword'
+Plug 'tmhedberg/SimpylFold'
 
 " Git
 Plug 'rhysd/conflict-marker.vim'
@@ -107,18 +119,25 @@ Plug 'mattn/emmet-vim'
 
 " Python
 Plug 'vim-scripts/indentpython.vim'
+" Plug 'vim-python/python-syntax', { 'for' :['python', 'vim-plug'] }
 
 " Markdown
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install_sync() }, 'for' :['markdown', 'vim-plug'] }
 Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle' }
 Plug 'vimwiki/vimwiki'
 
+" For general writing
+Plug 'reedes/vim-wordy'
+Plug 'ron89/thesaurus_query.vim'
+
 " Bookmarks
 Plug 'kshenoy/vim-signature'
 
 " Other useful utilities
+Plug 'jiangmiao/auto-pairs'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/goyo.vim' " distraction free writing mode
+Plug 'ntpeters/vim-better-whitespace', { 'on': ['EnableWhitespace', 'ToggleWhitespace'] } "displays trailing whitespace (after :EnableWhitespace, vim slows down)
 Plug 'tpope/vim-surround' " type ysks' to wrap the word with '' or type cs'` to change 'word' to `word`
 Plug 'godlygeek/tabular' " type ;Tabularize /= to align the =
 Plug 'gcmt/wildfire.vim' " in Visual mode, type i' to select all text in '', or type i) i] i} ip
@@ -131,9 +150,159 @@ Plug 'fadein/vim-FIGlet'
 
 call plug#end()
 
+set termguicolors     " enable true colors support
+" let ayucolor="mirage" " for mirage version of theme
+" let ayucolor="dark"   " for dark version of theme
 colorscheme snazzy
+let g:SnazzyTransparent = 1
 
 let g:lightline = {
-\ 'colorscheme': 'snazzy',
-\ }
-let g:SnazzyTransparent = 1
+  \     'active': {
+  \         'left': [['mode', 'paste' ], ['readonly', 'filename', 'modified']],
+  \         'right': [['lineinfo'], ['percent'], ['fileformat', 'fileencoding']]
+  \     }
+  \ }
+
+"
+" ===
+" === Taglist
+" ===
+map <silent> T :TagbarOpenAutoClose<CR>
+
+" ===
+" === NERDTreeToggle
+" ===
+noremap ff :NERDTreeToggle<CR>
+
+"" ==
+"" == NERDTree-git
+"" ==
+let g:NERDTreeIndicatorMapCustom = {
+			\ "Modified"	: "✹",
+			\ "Staged"		: "✚",
+			\ "Untracked" : "✭",
+			\ "Renamed"	 : "➜",
+			\ "Unmerged"	: "═",
+			\ "Deleted"	 : "✖",
+			\ "Dirty"		 : "✗",
+			\ "Clean"		 : "✔︎",
+			\ "Unknown"	 : "?"
+			\ }
+
+" ===
+" === coc
+" ===
+" fix the most annoying bug that coc has
+silent! au BufEnter,BufRead,BufNewFile * silent! unmap if
+let g:coc_global_extensions = ['coc-python', 'coc-vimlsp', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-yank', 'coc-lists', 'coc-gitignore', 'coc-vimlsp', 'coc-tailwindcss', 'coc-stylelint']
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+" use <tab> for trigger completion and navigate to the next complete item
+function! s:check_back_space() abort
+	let col = col('.') - 1
+	return !col || getline('.')[col - 1]	=~ '\s'
+endfunction
+inoremap <silent><expr> <Tab>
+			\ pumvisible() ? "\<C-n>" :
+			\ <SID>check_back_space() ? "\<Tab>" :
+			\ coc#refresh()
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <silent><expr> <c-space> coc#refresh()
+" Useful commands
+nnoremap <silent> <space>y :<C-u>CocList -A --normal yank<cr>
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <leader>rn <Plug>(coc-rename)
+
+" ===
+" === vim-go
+" ===
+let g:go_template_autocreate = 0
+let g:go_textobj_enabled = 0
+let g:go_auto_type_info = 1
+"let g:go_def_mapping_enabled = 1
+let g:go_highlight_array_whitespace_error    = 1
+let g:go_highlight_build_constraints         = 1
+let g:go_highlight_chan_whitespace_error     = 1
+let g:go_highlight_extra_types               = 1
+let g:go_highlight_fields                    = 1
+let g:go_highlight_format_strings            = 1
+let g:go_highlight_function_calls            = 1
+let g:go_highlight_function_parameters       = 1
+let g:go_highlight_functions                 = 1
+let g:go_highlight_generate_tags             = 1
+let g:go_highlight_methods                   = 1
+let g:go_highlight_operators                 = 1
+let g:go_highlight_space_tab_error           = 1
+let g:go_highlight_string_spellcheck         = 1
+let g:go_highlight_structs                   = 1
+let g:go_highlight_trailing_whitespace_error = 1
+let g:go_highlight_types                     = 1
+let g:go_highlight_variable_assignments      = 0
+let g:go_highlight_variable_declarations     = 0
+
+" ===
+" === MarkdownPreview
+" ===
+let g:mkdp_auto_start = 0
+let g:mkdp_auto_close = 1
+let g:mkdp_refresh_slow = 0
+let g:mkdp_command_for_global = 0
+let g:mkdp_open_to_the_world = 0
+let g:mkdp_open_ip = ''
+let g:mkdp_browser = 'chromium'
+let g:mkdp_echo_preview_url = 0
+let g:mkdp_browserfunc = ''
+let g:mkdp_preview_options = {
+    \ 'mkit': {},
+    \ 'katex': {},
+    \ 'uml': {},
+    \ 'maid': {},
+    \ 'disable_sync_scroll': 0,
+    \ 'sync_scroll_type': 'middle',
+    \ 'hide_yaml_meta': 1
+    \ }
+let g:mkdp_markdown_css = ''
+let g:mkdp_highlight_css = ''
+let g:mkdp_port = ''
+let g:mkdp_page_title = '「${name}」'
+
+" ===
+" === CtrlP
+" ===
+map <C-p> :CtrlP<CR>
+let g:ctrlp_prompt_mappings = {
+  \ 'PrtSelectMove("j")':   ['<c-e>', '<down>'],
+  \ 'PrtSelectMove("k")':   ['<c-u>', '<up>'],
+  \ }
+
+" === Experimenting coc.nvim features
+set timeoutlen=100
+set cmdheight=2
+
+set updatetime=1000
+set shortmess+=c
+set signcolumn=yes
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
+" Coc only does snippet and additional edit on confirm.
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" Use K to show documentation in preview window
+nnoremap ? :call <SID>show_documentation()<CR>
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
