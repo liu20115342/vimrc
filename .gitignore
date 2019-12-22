@@ -3,7 +3,6 @@
 view/
 plugged/
 sessions/
-autoload/
 _machine_specific.vim
 
 
