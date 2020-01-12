@@ -8,6 +8,7 @@ set expandtab
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
+set scrolloff=5
 set tw=0
 set backspace=indent,eol,start
 set foldmethod=indent
@@ -33,8 +34,6 @@ exec "nohlsearch"
 set incsearch
 set ignorecase
 set smartcase
-noremap = nzz
-noremap - Nzz
 noremap <LEADER><CR> :nohlsearch<CR>
 
 map s <nop>
@@ -53,14 +52,14 @@ map <LEADER>j <C-w>k
 map <LEADER>h <C-w>h
 map <LEADER>k <C-w>j
 
-map <up> :res +5<CR>
-map <down> :res -5<CR>
-map <left> :vertical resize-5<CR>
-map <right> :vertical resize+5<CR>
+map <LEADER><up> :res +5<CR>
+map <LEADER><down> :res -5<CR>
+map <LEADER><left> :vertical resize-5<CR>
+map <LEADER><right> :vertical resize+5<CR>
 
 map tu :tabe<CR>
-map th :-tabnext<CR>
-map tl :+tabnext<CR>
+map t<left> :-tabnext<CR>
+map t<right> :+tabnext<CR>
 
 map sv <C-w>t<C-w>H
 map sc <C-w>t<C-w>K
@@ -100,6 +99,8 @@ func! CompileBuildrrr()
     exec "echo"
   endif
 endfunc
+vmap <C-x> :!pbcopy<CR>
+vmap <C-c> :w !pbcopy<CR><CR>
 
 call plug#begin('~/.vim/plugged')
 
@@ -185,24 +186,32 @@ Plug 'fadein/vim-FIGlet'
 
 call plug#end()
 
-set termguicolors     " enable true colors support
 " let ayucolor="mirage" " for mirage version of theme
 " let ayucolor="dark"   " for dark version of theme
-colorscheme snazzy
+" colorscheme snazzy
+set t_Co=256   " This is may or may not needed.
 
-let g:lightline = {
-  \     'active': {
-  \         'left': [['mode', 'paste' ], ['readonly', 'filename', 'modified']],
-  \         'right': [['lineinfo'], ['percent'], ['fileformat', 'fileencoding']]
-  \     }
-  \ }
+colorscheme PaperColor
+
+set background=dark
+
+" let g:SnazzyTransparent=1
+
+hi Normal ctermfg=252 ctermbg=none
+
+" let g:lightline = {
+"   \     'active': {
+"   \         'left': [['mode', 'paste' ], ['readonly', 'filename', 'modified']],
+"   \         'right': [['lineinfo'], ['percent'], ['fileformat', 'fileencoding']]
+"   \     }
+"   \ }
 
 let g:SnazzyTransparent = 1
 "
 " ===
 " === Taglist
 " ===
-map <silent> T :TagbarOpenAutoClose<CR>
+map <silent> tt :TagbarOpenAutoClose<CR>
 
 " ===
 " === NERDTreeToggle
@@ -249,7 +258,7 @@ let g:NERDTreeIndicatorMapCustom = {
 " ===
 " fix the most annoying bug that coc has
 silent! au BufEnter,BufRead,BufNewFile * silent! unmap if
-let g:coc_global_extensions = ['coc-python', 'coc-vimlsp', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-yank', 'coc-lists', 'coc-gitignore', 'coc-vimlsp', 'coc-tailwindcss', 'coc-stylelint']
+let g:coc_global_extensions = ['coc-python', 'coc-vimlsp', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-yank', 'coc-lists', 'coc-gitignore', 'coc-vimlsp', 'coc-tailwindcss', 'coc-stylelint', 'coc-vetur']
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 " use <tab> for trigger completion and navigate to the next complete item
 function! s:check_back_space() abort
@@ -322,6 +331,38 @@ let g:go_highlight_variable_declarations     = 0
 " let g:mkdp_highlight_css = ''
 " let g:mkdp_port = ''
 " let g:mkdp_page_title = '「${name}」'
+
+" NerdCommenter
+" Add spaces after comment delimiters by default
+let mapleader = ","
+let g:NERDSpaceDelims = 1
+
+" Use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs = 1
+
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
+
+" Set a language to use its alternate delimiters by default
+let g:NERDAltDelims_java = 1
+
+" Add your own custom formats or override the defaults
+let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
+
+" Allow commenting and inverting empty lines (useful when commenting a region)
+let g:NERDCommentEmptyLines = 1
+
+" Enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace = 1
+
+" Enable NERDCommenterToggle to check all selected lines is commented or not
+let g:NERDToggleCheckAllLines = 1
+" 操作指令
+" ,cc 单行注释
+" ,cm 对选中的范围多行注释
+" ,cs 以”性感”的方式注释
+" ,cu 取消注释
+" ,ca 切换// 与/**/注释方式
 
 " ===
 " === CtrlP
