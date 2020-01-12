@@ -1,4 +1,12 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =2
+let g:netrw_dirhistcnt =0
+let g:netrw_dirhist_0='/home/liu/.config/ranger/colorschemes'
+let g:netrw_dirhist_9='/home/liu/www/share'
+let g:netrw_dirhist_8='/home/liu/www/html'
+let g:netrw_dirhist_7='/home/liu/www'
+let g:netrw_dirhist_6='/home/liu/www/koa-weibo/src'
+let g:netrw_dirhist_5='/home/liu/www/koa-weibo'
+let g:netrw_dirhist_4='/home/liu/www'
+let g:netrw_dirhist_3='/home/liu/www/koa-weibo'
 let g:netrw_dirhist_2='/home/liu/www/koa-weibo/src'
 let g:netrw_dirhist_1='/home/liu/www/koa-weibo'

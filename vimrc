@@ -40,7 +40,6 @@ noremap <LEADER><CR> :nohlsearch<CR>
 map s <nop>
 map S :w<CR>
 map Q :q<CR>
-map R :source $MYVIMRC<CR>
 noremap K 5k
 noremap J 5j
 
@@ -65,6 +64,42 @@ map tl :+tabnext<CR>
 
 map sv <C-w>t<C-w>H
 map sc <C-w>t<C-w>K
+
+map r :call CompileRunGcc()<CR>
+func! CompileRunGcc()
+  exec "w"
+  if &filetype == 'c'
+    exec "!g++ % -o %<"
+    exec "!time ./%<"
+  elseif &filetype == 'cpp'
+    exec "!g++ % -o %<"
+    exec "!time ./%<"
+  elseif &filetype == 'java'
+    exec "!javac %"
+    exec "!time java %<"
+  elseif &filetype == 'sh'
+    :!time bash %
+  elseif &filetype == 'python'
+    silent! exec "!clear"
+    exec "!time python3 %"
+  elseif &filetype == 'html'
+    exec "!firefox % &"
+  elseif &filetype == 'markdown'
+    exec "MarkdownPreview"
+  elseif &filetype == 'vimwiki'
+    exec "MarkdownPreview"
+  endif
+endfunc
+
+map R :call CompileBuildrrr()<CR>
+func! CompileBuildrrr()
+  exec "w"
+  if &filetype == 'vim'
+    exec "source $MYVIMRC"
+  elseif &filetype == 'markdown'
+    exec "echo"
+  endif
+endfunc
 
 call plug#begin('~/.vim/plugged')
 
@@ -154,7 +189,6 @@ set termguicolors     " enable true colors support
 " let ayucolor="mirage" " for mirage version of theme
 " let ayucolor="dark"   " for dark version of theme
 colorscheme snazzy
-let g:SnazzyTransparent = 1
 
 let g:lightline = {
   \     'active': {
@@ -163,6 +197,7 @@ let g:lightline = {
   \     }
   \ }
 
+let g:SnazzyTransparent = 1
 "
 " ===
 " === Taglist
@@ -172,7 +207,27 @@ map <silent> T :TagbarOpenAutoClose<CR>
 " ===
 " === NERDTreeToggle
 " ===
-noremap ff :NERDTreeToggle<CR>
+noremap <C-N> :NERDTreeToggle<CR>
+"显示增强
+let NERDChristmasTree=1
+"自动调整焦点
+let NERDTreeAutoCenter=1
+"鼠标模式:目录单击,文件双击
+let NERDTreeMouseMode=2
+"打开文件后自动关闭
+let NERDTreeQuitOnOpen=0
+"显示文件
+let NERDTreeShowFiles=1
+"显示隐藏文件
+let NERDTreeShowHidden=0
+"高亮显示当前文件或目录
+let NERDTreeHightCursorline=1
+"显示行号
+let NERDTreeShowLineNumbers=1
+"窗口位置
+let NERDTreeWinPos='left'
+"窗口宽度
+let NERDTreeWinSize=31
 
 "" ==
 "" == NERDTree-git
@@ -245,28 +300,28 @@ let g:go_highlight_variable_declarations     = 0
 " ===
 " === MarkdownPreview
 " ===
-let g:mkdp_auto_start = 0
-let g:mkdp_auto_close = 1
-let g:mkdp_refresh_slow = 0
-let g:mkdp_command_for_global = 0
-let g:mkdp_open_to_the_world = 0
-let g:mkdp_open_ip = ''
-let g:mkdp_browser = 'chromium'
-let g:mkdp_echo_preview_url = 0
-let g:mkdp_browserfunc = ''
-let g:mkdp_preview_options = {
-    \ 'mkit': {},
-    \ 'katex': {},
-    \ 'uml': {},
-    \ 'maid': {},
-    \ 'disable_sync_scroll': 0,
-    \ 'sync_scroll_type': 'middle',
-    \ 'hide_yaml_meta': 1
-    \ }
-let g:mkdp_markdown_css = ''
-let g:mkdp_highlight_css = ''
-let g:mkdp_port = ''
-let g:mkdp_page_title = '「${name}」'
+" let g:mkdp_auto_start = 0
+" let g:mkdp_auto_close = 1
+" let g:mkdp_refresh_slow = 0
+" let g:mkdp_command_for_global = 0
+" let g:mkdp_open_to_the_world = 0
+" let g:mkdp_open_ip = ''
+" let g:mkdp_browser = 'chromium'
+" let g:mkdp_echo_preview_url = 0
+" let g:mkdp_browserfunc = ''
+" let g:mkdp_preview_options = {
+"     \ 'mkit': {},
+"     \ 'katex': {},
+"     \ 'uml': {},
+"     \ 'maid': {},
+"     \ 'disable_sync_scroll': 0,
+"     \ 'sync_scroll_type': 'middle',
+"     \ 'hide_yaml_meta': 1
+"     \ }
+" let g:mkdp_markdown_css = ''
+" let g:mkdp_highlight_css = ''
+" let g:mkdp_port = ''
+" let g:mkdp_page_title = '「${name}」'
 
 " ===
 " === CtrlP
@@ -276,6 +331,39 @@ let g:ctrlp_prompt_mappings = {
   \ 'PrtSelectMove("j")':   ['<c-e>', '<down>'],
   \ 'PrtSelectMove("k")':   ['<c-u>', '<up>'],
   \ }
+
+" ==
+" == vim-multiple-cursor
+" ==
+let g:multi_cursor_use_default_mapping=0
+let g:multi_cursor_start_word_key      = '<c-k>'
+let g:multi_cursor_select_all_word_key = '<a-k>'
+let g:multi_cursor_start_key           = 'g<c-k>'
+let g:multi_cursor_select_all_key      = 'g<a-k>'
+let g:multi_cursor_next_key            = '<c-k>'
+let g:multi_cursor_prev_key            = '<c-p>'
+let g:multi_cursor_skip_key            = '<C-x>'
+let g:multi_cursor_quit_key            = '<Esc>'
+
+let g:vimwiki_list = [{
+  \ 'automatic_nested_syntaxes':1,
+  \ 'path_html': '~/wiki_html',
+  \ 'path': '~/wiki',
+  \ 'template_path': '~/.vim/vimwiki/template/',
+  \ 'syntax': 'markdown',
+  \ 'ext':'.md',
+  \ 'template_default':'markdown',
+  \ 'custom_wiki2html': '~/.vim/vimwiki/wiki2html.sh',
+  \ 'template_ext':'.html'
+\}]
+
+au BufRead,BufNewFile *.md set filetype=vimwiki
+
+let g:taskwiki_sort_orders={"C": "pri-"}
+let g:taskwiki_syntax = 'markdown'
+let g:taskwiki_markdown_syntax='markdown'
+let g:taskwiki_markup_syntax='markdown'
+
 
 " === Experimenting coc.nvim features
 set timeoutlen=100
