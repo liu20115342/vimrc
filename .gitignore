@@ -4,5 +4,5 @@ view/
 plugged/
 sessions/
 _machine_specific.vim
-
+.netrwhist
 

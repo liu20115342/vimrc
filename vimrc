@@ -42,7 +42,6 @@ noremap <LEADER><CR> :nohlsearch<CR>
 map s <nop>
 map S :w<CR>
 map Q :q<CR>
-map R :source $MYVIMRC<CR>
 noremap K 5k
 noremap J 5j
 
@@ -68,6 +67,41 @@ map t<right> :+tabnext<CR>
 map sv <C-w>t<C-w>H
 map sc <C-w>t<C-w>K
 
+map r :call CompileRunGcc()<CR>
+func! CompileRunGcc()
+  exec "w"
+  if &filetype == 'c'
+    exec "!g++ % -o %<"
+    exec "!time ./%<"
+  elseif &filetype == 'cpp'
+    exec "!g++ % -o %<"
+    exec "!time ./%<"
+  elseif &filetype == 'java'
+    exec "!javac %"
+    exec "!time java %<"
+  elseif &filetype == 'sh'
+    :!time bash %
+  elseif &filetype == 'python'
+    silent! exec "!clear"
+    exec "!time python3 %"
+  elseif &filetype == 'html'
+    exec "!firefox % &"
+  elseif &filetype == 'markdown'
+    exec "MarkdownPreview"
+  elseif &filetype == 'vimwiki'
+    exec "MarkdownPreview"
+  endif
+endfunc
+
+map R :call CompileBuildrrr()<CR>
+func! CompileBuildrrr()
+  exec "w"
+  if &filetype == 'vim'
+    exec "source $MYVIMRC"
+  elseif &filetype == 'markdown'
+    exec "echo"
+  endif
+endfunc
 vmap <C-x> :!pbcopy<CR>
 vmap <C-c> :w !pbcopy<CR><CR>
 
@@ -193,6 +227,7 @@ if executable('gopls')
 endif
 
 
+let g:SnazzyTransparent = 1
 "
 " ===
 " === Taglist
@@ -342,28 +377,28 @@ let g:go_info_mode='gopls'
 " ===
 " === MarkdownPreview
 " ===
-let g:mkdp_auto_start = 0
-let g:mkdp_auto_close = 1
-let g:mkdp_refresh_slow = 0
-let g:mkdp_command_for_global = 0
-let g:mkdp_open_to_the_world = 0
-let g:mkdp_open_ip = ''
-let g:mkdp_browser = 'chromium'
-let g:mkdp_echo_preview_url = 0
-let g:mkdp_browserfunc = ''
-let g:mkdp_preview_options = {
-    \ 'mkit': {},
-    \ 'katex': {},
-    \ 'uml': {},
-    \ 'maid': {},
-    \ 'disable_sync_scroll': 0,
-    \ 'sync_scroll_type': 'middle',
-    \ 'hide_yaml_meta': 1
-    \ }
-let g:mkdp_markdown_css = ''
-let g:mkdp_highlight_css = ''
-let g:mkdp_port = ''
-let g:mkdp_page_title = '「${name}」'
+" let g:mkdp_auto_start = 0
+" let g:mkdp_auto_close = 1
+" let g:mkdp_refresh_slow = 0
+" let g:mkdp_command_for_global = 0
+" let g:mkdp_open_to_the_world = 0
+" let g:mkdp_open_ip = ''
+" let g:mkdp_browser = 'chromium'
+" let g:mkdp_echo_preview_url = 0
+" let g:mkdp_browserfunc = ''
+" let g:mkdp_preview_options = {
+"     \ 'mkit': {},
+"     \ 'katex': {},
+"     \ 'uml': {},
+"     \ 'maid': {},
+"     \ 'disable_sync_scroll': 0,
+"     \ 'sync_scroll_type': 'middle',
+"     \ 'hide_yaml_meta': 1
+"     \ }
+" let g:mkdp_markdown_css = ''
+" let g:mkdp_highlight_css = ''
+" let g:mkdp_port = ''
+" let g:mkdp_page_title = '「${name}」'
 
 " NerdCommenter
 " Add spaces after comment delimiters by default
@@ -405,6 +440,39 @@ let g:ctrlp_prompt_mappings = {
   \ 'PrtSelectMove("j")':   ['<c-e>', '<down>'],
   \ 'PrtSelectMove("k")':   ['<c-u>', '<up>'],
   \ }
+
+" ==
+" == vim-multiple-cursor
+" ==
+let g:multi_cursor_use_default_mapping=0
+let g:multi_cursor_start_word_key      = '<c-k>'
+let g:multi_cursor_select_all_word_key = '<a-k>'
+let g:multi_cursor_start_key           = 'g<c-k>'
+let g:multi_cursor_select_all_key      = 'g<a-k>'
+let g:multi_cursor_next_key            = '<c-k>'
+let g:multi_cursor_prev_key            = '<c-p>'
+let g:multi_cursor_skip_key            = '<C-x>'
+let g:multi_cursor_quit_key            = '<Esc>'
+
+let g:vimwiki_list = [{
+  \ 'automatic_nested_syntaxes':1,
+  \ 'path_html': '~/wiki_html',
+  \ 'path': '~/wiki',
+  \ 'template_path': '~/.vim/vimwiki/template/',
+  \ 'syntax': 'markdown',
+  \ 'ext':'.md',
+  \ 'template_default':'markdown',
+  \ 'custom_wiki2html': '~/.vim/vimwiki/wiki2html.sh',
+  \ 'template_ext':'.html'
+\}]
+
+au BufRead,BufNewFile *.md set filetype=vimwiki
+
+let g:taskwiki_sort_orders={"C": "pri-"}
+let g:taskwiki_syntax = 'markdown'
+let g:taskwiki_markdown_syntax='markdown'
+let g:taskwiki_markup_syntax='markdown'
+
 
 " === Experimenting coc.nvim features
 set timeoutlen=100
