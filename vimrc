@@ -34,6 +34,9 @@ exec "nohlsearch"
 set incsearch
 set ignorecase
 set smartcase
+
+" 帮助语言为中文
+set helplang=cn
 noremap <LEADER><CR> :nohlsearch<CR>
 
 map s <nop>
@@ -119,6 +122,9 @@ Plug 'gko/vim-coloresque', { 'for': ['vim-plug', 'php', 'html', 'javascript', 'c
 Plug 'pangloss/vim-javascript', { 'for' :['javascript', 'vim-plug'] }
 Plug 'mattn/emmet-vim'
 
+" Go 相关插件
+Plug 'fatih/vim-go'
+
 " Python
 Plug 'vim-scripts/indentpython.vim'
 " Plug 'vim-python/python-syntax', { 'for' :['python', 'vim-plug'] }
@@ -150,6 +156,8 @@ Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'kana/vim-textobj-user'
 Plug 'fadein/vim-FIGlet'
 
+" 中文文档。
+Plug 'asins/vimcdoc'
 call plug#end()
 
 " let ayucolor="mirage" " for mirage version of theme
@@ -172,16 +180,61 @@ hi Normal ctermfg=252 ctermbg=none
 "   \     }
 "   \ }
 
+if executable('gopls')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'gopls',
+        \ 'cmd': {server_info->['gopls', '-mode', 'stdio']},
+        \ 'whitelist': ['go'],
+        \ })
+    autocmd FileType go setlocal omnifunc=lsp#complete
+    autocmd FileType go nmap <buffer> gd <plug>(lsp-definition)
+    autocmd FileType go nmap <buffer> ,n <plug>(lsp-next-error)
+    autocmd FileType go nmap <buffer> ,p <plug>(lsp-previous-error)
+endif
+
+
 "
 " ===
 " === Taglist
 " ===
-map <silent> tt :TagbarOpenAutoClose<CR>
+map <F3> :TagbarOpenAutoClose<CR>
+
+" tagbar
+let g:tagbar_width = 30
+nmap <F1> :TagbarToggle<CR>
+let g:tagbar_left =1
+let g:tagbar_type_go = {
+    \ 'ctagstype' : 'go',
+    \ 'kinds'     : [
+        \ 'p:package',
+        \ 'i:imports:1',
+        \ 'c:constants',
+        \ 'v:variables',
+        \ 't:types',
+        \ 'n:interfaces',
+        \ 'w:fields',
+        \ 'e:embedded',
+        \ 'm:methods',
+        \ 'r:constructor',
+        \ 'f:functions'
+    \ ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : {
+        \ 't' : 'ctype',
+        \ 'n' : 'ntype'
+    \ },
+    \ 'scope2kind' : {
+        \ 'ctype' : 't',
+        \ 'ntype' : 'n'
+    \ },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
+\ }
 
 " ===
 " === NERDTreeToggle
 " ===
-map <C-N> :NERDTreeToggle<CR>
+map <F2> :NERDTreeToggle<CR>
 " start NERDTree upon startup at move cursor to editing area
 autocmd vimenter * NERDTree | wincmd p
 " open NERDTree when vim startsup if no files specified
@@ -196,6 +249,7 @@ autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 " close vim if the only window left open is NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
 " Show hidden files in NERDTree
 let NERDTreeShowHidden=1
 "" ==
@@ -213,6 +267,19 @@ let g:NERDTreeIndicatorMapCustom = {
 			\ "Unknown"	 : "?"
 			\ }
 
+" 在 NERDTree 窗口中禁用 BD 命令。
+autocmd FileType nerdtree cnoreabbrev <buffer> bd <nop>
+" 当关闭得只剩下 NERDTree 一个窗口时，自动关闭 vim
+autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
+function! s:CloseIfOnlyNerdTreeLeft()
+    if exists("t:NERDTreeBufName")
+        if bufwinnr(t:NERDTreeBufName) != -1
+            if winnr("$") == 1
+                q
+            endif
+        endif
+    endif
+endfunction
 " ===
 " === coc
 " ===
@@ -262,10 +329,16 @@ let g:go_highlight_space_tab_error           = 1
 let g:go_highlight_string_spellcheck         = 1
 let g:go_highlight_structs                   = 1
 let g:go_highlight_trailing_whitespace_error = 1
-let g:go_highlight_types                     = 1
-let g:go_highlight_variable_assignments      = 0
-let g:go_highlight_variable_declarations     = 0
 
+
+let g:go_highlight_types = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_sructs = 1
+let g:go_highlight_interfaces = 1
+let g:go_highlight_build_constraints = 1
+let g:go_fmt_command = "goimports"
+let g:go_def_mode='gopls'
+let g:go_info_mode='gopls'
 " ===
 " === MarkdownPreview
 " ===
@@ -362,3 +435,51 @@ function! s:show_documentation()
     call CocAction('doHover')
   endif
 endfunction
+
+" ariline
+" 使用 powerline 的箭头，需要安装 powerline 字体，在未安装 powerline 字体的情况下，
+" 可以将此值设置为 0，这将使用之后的这些默认的符号替换。
+let g:airline_powerline_fonts = 1
+if g:airline_powerline_fonts == 0
+    if !exists('g:airline_symbols')
+        let g:airline_symbols = {}
+    endif
+    let g:airline_left_sep = '▶'
+    let g:airline_left_alt_sep = '❯'
+    let g:airline_right_sep = '◀'
+    let g:airline_right_alt_sep = '❮'
+    let g:airline_symbols.paste = 'ρ'
+    let g:airline_symbols.linenr = '¶'
+    let g:airline_symbols.branch = '§'
+    let g:airline_symbols.whitespace = 'Ξ'
+    let g:airline_symbols.readonly = ''
+endif
+
+let g:airline_mode_map = {
+      \ '__' : '-',
+      \ 'n'  : '标准',
+      \ 'i'  : '插入',
+      \ 'R'  : '替换',
+      \ 'c'  : '命令行',
+      \ 'v'  : '可视',
+      \ 'V'  : '可视',
+      \ '' : '可视',
+      \ 's'  : '选择',
+      \ 'S'  : '选择',
+      \ '' : '选择',
+      \ }
+
+set laststatus=2
+
+" airline-tabline 扩展设计，若需要更专业的 buffer 列表显示插件，
+" 可以使用 techlivezheng/vim-plugin-minibufexpl 插件！
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#buffer_nr_show = 1
+let g:airline#extensions#tabline#fnamemod = ':p:t' " 只显示文件名，不显示路径内容。
+
+if g:airline_powerline_fonts == 0
+    let g:airline#extensions#tabline#left_sep = '▶'
+    let g:airline#extensions#tabline#left_alt_sep = '❯'
+    let g:airline#extensions#tabline#right_sep = '◀'
+    let g:airline#extensions#tabline#right_alt_sep = '❮'
+endif
