@@ -25,8 +25,8 @@ set cursorline
 set wrap
 set showcmd
 set wildmenu
-set clipboard=unnamedplus
-
+set clipboard=unnamed
+set nowrap
 " 搜索设置
 
 set hlsearch
@@ -37,6 +37,11 @@ set smartcase
 
 " 帮助语言为中文
 set helplang=cn
+
+" 禁止生成临时文件
+set nobackup
+set noswapfile
+
 noremap <LEADER><CR> :nohlsearch<CR>
 
 map s <nop>
@@ -93,15 +98,7 @@ func! CompileRunGcc()
   endif
 endfunc
 
-map R :call CompileBuildrrr()<CR>
-func! CompileBuildrrr()
-  exec "w"
-  if &filetype == 'vim'
-    exec "source $MYVIMRC"
-  elseif &filetype == 'markdown'
-    exec "echo"
-  endif
-endfunc
+
 vmap <C-x> :!pbcopy<CR>
 vmap <C-c> :w !pbcopy<CR><CR>
 
@@ -134,8 +131,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mbbill/undotree/'
 
 " Snippits
-" Plug 'SirVer/ultisnips'  , { 'for': ['vim-plug', 'python'] }  
-" Plug 'honza/vim-snippets', { 'for': ['vim-plug', 'python'] }
+Plug 'SirVer/ultisnips' 
+Plug 'honza/vim-snippets'
 
 " Other visual enhancement
 Plug 'nathanaelkane/vim-indent-guides'
@@ -157,7 +154,7 @@ Plug 'pangloss/vim-javascript', { 'for' :['javascript', 'vim-plug'] }
 Plug 'mattn/emmet-vim'
 
 " Go 相关插件
-Plug 'fatih/vim-go'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " Python
 Plug 'vim-scripts/indentpython.vim'
@@ -192,6 +189,9 @@ Plug 'fadein/vim-FIGlet'
 
 " 中文文档。
 Plug 'asins/vimcdoc'
+
+" 
+Plug 'vim-ctrlspace/vim-ctrlspace'
 call plug#end()
 
 " let ayucolor="mirage" " for mirage version of theme
@@ -214,6 +214,10 @@ hi Normal ctermfg=252 ctermbg=none
 "   \     }
 "   \ }
 
+" snippets
+let g:UltiSnipsExpandTrigger = "<F8>"
+
+
 if executable('gopls')
     au User lsp_setup call lsp#register_server({
         \ 'name': 'gopls',
@@ -226,6 +230,14 @@ if executable('gopls')
     autocmd FileType go nmap <buffer> ,p <plug>(lsp-previous-error)
 endif
 
+" CtrlSpace 插件配置
+set nocompatible
+set hidden
+let g:CtrlSpaceDefaultMappingKey = "<F9> "
+let g:CtrlSpaceUseUnicode = 0
+"emmet
+let g:user_emmet_install_global = 0
+autocmd FileType html,css,js,jsx,ejs,vue EmmetInstall
 
 let g:SnazzyTransparent = 1
 "
@@ -367,10 +379,8 @@ let g:go_highlight_trailing_whitespace_error = 1
 
 
 let g:go_highlight_types = 1
-let g:go_highlight_methods = 1
 let g:go_highlight_sructs = 1
 let g:go_highlight_interfaces = 1
-let g:go_highlight_build_constraints = 1
 let g:go_fmt_command = "goimports"
 let g:go_def_mode='gopls'
 let g:go_info_mode='gopls'
