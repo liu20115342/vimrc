@@ -34,7 +34,7 @@ exec "nohlsearch"
 set incsearch
 set ignorecase
 set smartcase
-set pastetoggle=<F4>
+set pastetoggle=<F5>
 
 " 帮助语言为中文
 set helplang=cn
