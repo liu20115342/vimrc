@@ -11,7 +11,7 @@ set softtabstop=2
 set scrolloff=5
 set tw=0
 set backspace=indent,eol,start
-set foldmethod=indent
+set foldmethod=manual
 set foldlevel=99
 let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 let &t_SR = "\<Esc>]50;CursorShape=2\x7"
@@ -34,6 +34,7 @@ exec "nohlsearch"
 set incsearch
 set ignorecase
 set smartcase
+set pastetoggle=<F4>
 
 " 帮助语言为中文
 set helplang=cn
@@ -44,21 +45,14 @@ set noswapfile
 
 noremap <LEADER><CR> :nohlsearch<CR>
 
-map s <nop>
-map S :w<CR>
-map Q :q<CR>
-noremap K 5k
+map <LEADER>w :w<CR>
+map <LEADER>q :q<CR>
 noremap J 5j
 
 map sl :set splitright<CR>:vsplit<CR>
 map sh :set nosplitright<CR>:vsplit<CR>
 map sj :set nosplitbelow<CR>:split<CR>
 map sk :set splitbelow<CR>:split<CR>
-
-map <LEADER>l <C-w>l
-map <LEADER>j <C-w>k
-map <LEADER>h <C-w>h
-map <LEADER>k <C-w>j
 
 map <LEADER><up> :res +5<CR>
 map <LEADER><down> :res -5<CR>
@@ -72,46 +66,28 @@ map t<right> :+tabnext<CR>
 map sv <C-w>t<C-w>H
 map sc <C-w>t<C-w>K
 
-map r :call CompileRunGcc()<CR>
-func! CompileRunGcc()
-  exec "w"
-  if &filetype == 'c'
-    exec "!g++ % -o %<"
-    exec "!time ./%<"
-  elseif &filetype == 'cpp'
-    exec "!g++ % -o %<"
-    exec "!time ./%<"
-  elseif &filetype == 'java'
-    exec "!javac %"
-    exec "!time java %<"
-  elseif &filetype == 'sh'
-    :!time bash %
-  elseif &filetype == 'python'
-    silent! exec "!clear"
-    exec "!time python3 %"
-  elseif &filetype == 'html'
-    exec "!firefox % &"
-  elseif &filetype == 'markdown'
-    exec "MarkdownPreview"
-  elseif &filetype == 'vimwiki'
-    exec "MarkdownPreview"
-  endif
-endfunc
-
-
 vmap <C-x> :!pbcopy<CR>
 vmap <C-c> :w !pbcopy<CR><CR>
+inoremap <C-d> <Esc>ddi
+" json 格式化
+com! FormatJSON %!python3 -m json.tool
 
 call plug#begin('~/.vim/plugged')
 
+Plug 'mhinz/vim-startify'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'connorholyday/vim-snazzy'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'ayu-theme/ayu-vim'
 Plug 'bling/vim-bufferline'
+Plug 'yggdroot/indentline'
+Plug 'morhetz/gruvbox'
+Plug 'altercation/vim-colors-solarized'
+Plug 'w0ng/vim-hybrid'
 
-" File navigation
+Plug 'easymotion/vim-easymotion'
+" File navigati
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'ctrlpvim/ctrlp.vim', { 'on': 'CtrlP' }
@@ -172,6 +148,16 @@ Plug 'ron89/thesaurus_query.vim'
 " Bookmarks
 Plug 'kshenoy/vim-signature'
 
+" 注释插件
+Plug 'tpope/vim-commentary'
+" 快速搜索插件
+Plug 'junegunn/fzf', { 'dir': '~/.fzf' ,'do': './install --bin' }
+Plug 'junegunn/fzf.vim'
+
+" 替换
+Plug 'brooth/far.vim'
+" 标记高亮单词
+Plug 'lfv89/vim-interestingwords'
 " Other useful utilities
 Plug 'jiangmiao/auto-pairs'
 Plug 'terryma/vim-multiple-cursors'
@@ -197,15 +183,16 @@ call plug#end()
 " let ayucolor="mirage" " for mirage version of theme
 " let ayucolor="dark"   " for dark version of theme
 " colorscheme snazzy
-set t_Co=256   " This is may or may not needed.
+" set t_Co=256   " This is may or may not needed.
 
-colorscheme PaperColor
+colorscheme hybrid
 
 set background=dark
 
 " let g:SnazzyTransparent=1
 
-hi Normal ctermfg=252 ctermbg=none
+" 背景透明
+" hi Normal ctermfg=252 ctermbg=none
 
 " let g:lightline = {
 "   \     'active': {
@@ -230,6 +217,8 @@ if executable('gopls')
     autocmd FileType go nmap <buffer> ,p <plug>(lsp-previous-error)
 endif
 
+nmap <LEADER>s <Plug>(easymotion-s2)
+
 " CtrlSpace 插件配置
 set nocompatible
 set hidden
@@ -248,8 +237,8 @@ map <F3> :TagbarOpenAutoClose<CR>
 
 " tagbar
 let g:tagbar_width = 30
-nmap <F1> :TagbarToggle<CR>
-let g:tagbar_left =1
+nnoremap <F4> :TagbarToggle<CR>
+" let g:tagbar_left =1
 let g:tagbar_type_go = {
     \ 'ctagstype' : 'go',
     \ 'kinds'     : [
@@ -278,17 +267,48 @@ let g:tagbar_type_go = {
     \ 'ctagsargs' : '-sort -silent'
 \ }
 
+let g:tagbar_type_javascript = {
+      \ 'ctagstype': 'javascript',
+      \ 'kinds': [
+      \ 'A:arrays',
+      \ 'P:properties',
+      \ 'T:tags',
+      \ 'O:objects',
+      \ 'G:generator functions',
+      \ 'F:functions',
+      \ 'C:constructors/classes',
+      \ 'M:methods',
+      \ 'V:variables',
+      \ 'I:imports',
+      \ 'E:exports',
+      \ 'S:styled components'
+      \ ]}
+let g:tagbar_type_markdown = {
+    \ 'ctagstype' : 'markdown',
+    \ 'kinds' : [
+        \ 'h:Heading_L1',
+        \ 'i:Heading_L2',
+        \ 'k:Heading_L3'
+    \ ]
+\ }
+let g:tagbar_type_css = {
+\ 'ctagstype' : 'Css',
+    \ 'kinds'     : [
+        \ 'c:classes',
+        \ 's:selectors',
+        \ 'i:identities'
+    \ ]
+\ }
 " ===
 " === NERDTreeToggle
 " ===
+nnoremap <LEADER>v :NERDTreeFind<CR>
 map <F2> :NERDTreeToggle<CR>
 " start NERDTree upon startup at move cursor to editing area
-autocmd vimenter * NERDTree | wincmd p
+" autocmd vimenter * NERDTree | wincmd p
 " open NERDTree when vim startsup if no files specified
-"autocmd StdinReadPre * let s:std_in=1
-"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-" open NERDTree when vim startsup with directory specified
-autocmd StdinReadPre * let s:std_in=1
+" autocmd StdinReadPre * let s:std_in=1
+" autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
 
 " Auto close NERDTree if no more files
@@ -347,11 +367,36 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <silent><expr> <c-space> coc#refresh()
 " Useful commands
 nnoremap <silent> <space>y :<C-u>CocList -A --normal yank<cr>
-nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gn <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 nmap <leader>rn <Plug>(coc-rename)
+
+xmap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap if <Plug>(coc-funcobj-i)
+omap af <Plug>(coc-funcobj-a)
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
+" Formatting selected code.
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
 
 " ===
 " === vim-go
@@ -412,7 +457,6 @@ let g:go_info_mode='gopls'
 
 " NerdCommenter
 " Add spaces after comment delimiters by default
-let mapleader = ","
 let g:NERDSpaceDelims = 1
 
 " Use compact syntax for prettified multi-line comments
@@ -450,7 +494,7 @@ let g:ctrlp_prompt_mappings = {
   \ 'PrtSelectMove("j")':   ['<c-e>', '<down>'],
   \ 'PrtSelectMove("k")':   ['<c-u>', '<up>'],
   \ }
-
+let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
 " ==
 " == vim-multiple-cursor
 " ==
